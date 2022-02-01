@@ -1,0 +1,24 @@
+node {
+   //def mavenHome = '/var/lib/jenkins/tools/hudson.tasks.Maven_MavenInstallation/maven3.8.4/bin'
+  def mavenHome = tool name: 'maven'
+  
+  stage('1.git clone')
+  {
+  git credentialsId: '657a169c-cb73-4d51-8bd3-379c9cfc9b95', url: 'https://github.com/bconrad162/maven-web-application'
+  }
+  stage('2.maven-Build')
+  { 
+    sh "${mavenHome}/bin/mvn clean package"
+  }
+  
+  stage('3.CodeQualityReport')
+  {
+  sh "${mavenHome}/bin/mvn sonar:sonar"
+  }
+ 
+  stage('4.DeployTomcat')
+        {
+        deploy adapters: [tomcat9(credentialsId: 'TomCatCREDENTIALS', path: '', url: 'http://10.182.0.7:8080')], contextPath: null, war: 'target/*war'
+        }   
+  
+  }
